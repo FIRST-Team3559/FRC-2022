@@ -12,4 +12,12 @@ package frc.robot;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
-public final class Constants {}
+public final class Constants {
+
+    // SparkMAX CAN IDs for driveBase
+    public static int FL_MOTOR_CONTROLLER_ID = 10;
+    public static int RL_MOTOR_CONTROLLER_ID = 11;
+    public static int FR_MOTOR_CONTROLLER_ID = 12;
+    public static int RR_MOTOR_CONTROLLER_ID = 13;
+
+}
