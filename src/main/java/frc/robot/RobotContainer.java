@@ -30,12 +30,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
   
-    public static Joystick stick0 = new Joystick(0);
-    public static Joystick stick1 = new Joystick(1);
-    public static POVButton povForward = new POVButton(stick0, 0);
-    public static POVButton povRight = new POVButton(stick0, 90);
-    public static POVButton povBackward = new POVButton(stick0, 180);
-    public static POVButton povLeft = new POVButton(stick0, 270);
+    
   }
 
   /**
