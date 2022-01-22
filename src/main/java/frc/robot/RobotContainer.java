@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -24,12 +26,17 @@ public class RobotContainer {
   public static POVButton povRight = new POVButton(stick0, 90);
   public static POVButton povBackward = new POVButton(stick0, 180);
   public static POVButton povLeft = new POVButton(stick0, 270);
+  
+  private final Encoder m_leftEncoder = new Encoder (DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1], DriveConstants.kLeftEncoderReversed);
+  private final Encoder m_rightEncoder = new Encoder (DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1], DriveConstants.kRightEncoderReversed);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-  
+    
+    m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
+    m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
     
   }
 
