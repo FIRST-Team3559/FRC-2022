@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.geometry.Pose2d;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -81,5 +82,14 @@ public class RobotContainer extends Subsystembase {
   
   public double getHeading() {
     return m_gyro.getRotation2d().getDegrees();
+  }
+  
+  /**
+   * Returns the currently-estimated pose of the robot.
+   *
+   * @return The pose.
+   */
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
   }
 }
