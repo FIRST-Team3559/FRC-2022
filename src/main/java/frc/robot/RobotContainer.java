@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,6 +25,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public static Joystick stick0 = new Joystick(0);
   public static Joystick stick1 = new Joystick(1);
+  
   public static POVButton povForward = new POVButton(stick0, 0);
   public static POVButton povRight = new POVButton(stick0, 90);
   public static POVButton povBackward = new POVButton(stick0, 180);
@@ -30,6 +33,10 @@ public class RobotContainer {
   
   private final Encoder m_leftEncoder = new Encoder (DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1], DriveConstants.kLeftEncoderReversed);
   private final Encoder m_rightEncoder = new Encoder (DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1], DriveConstants.kRightEncoderReversed);
+  
+  private final Gyro m_gyro = new ADXRS450_Gyro();
+  
+  private final DifferentialDriveOdometry m_odometry;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -61,5 +68,9 @@ public class RobotContainer {
   
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+  }
+  
+  public double getHeading() {
+    return m_gyro.getRotation2d().getDegrees();
   }
 }
