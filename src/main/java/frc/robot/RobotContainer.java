@@ -38,7 +38,7 @@ public class RobotContainer extends Subsystembase {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    // Sets the length of the pulse of each encoder, a pulse being an encoder cycle
+    // Sets the length of the pulse of each encoder, 2 pulses being an encoder cycle
     m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
     m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
   }
