@@ -25,12 +25,13 @@ import edu.wpi.first.math.geometry.Pose2d;
  */
 public class RobotContainer extends Subsystembase {
   // The robot's subsystems and commands are defined here...
-  public static Joystick stick0 = new Joystick(0);
-  public static Joystick stick1 = new Joystick(1);
-  public static POVButton povForward = new POVButton(stick0, 0);
-  public static POVButton povRight = new POVButton(stick0, 90);
-  public static POVButton povBackward = new POVButton(stick0, 180);
-  public static POVButton povLeft = new POVButton(stick0, 270);
+  private final XboxController m_joystick1 = new XboxController(0);
+  public final static Joystick stick0 = new Joystick(0);
+  public final static Joystick stick1 = new Joystick(1);
+  public final static POVButton povForward = new POVButton(stick0, 0);
+  public final static POVButton povRight = new POVButton(stick0, 90);
+  public final static POVButton povBackward = new POVButton(stick0, 180);
+  public final static POVButton povLeft = new POVButton(stick0, 270);
   private final Encoder m_leftEncoder = new Encoder (DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1], DriveConstants.kLeftEncoderReversed);
   private final Encoder m_rightEncoder = new Encoder (DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1], DriveConstants.kRightEncoderReversed);
   private final Gyro m_gyro = new ADXRS450_Gyro();
@@ -68,24 +69,31 @@ public class RobotContainer extends Subsystembase {
   public Command getAutonomousCommand() {
     return m_autoCommand;
   }
+  
   public double getHeading() {
     return m_gyro.getRotation2d().getDegrees();
   }
+  
   public double getTurnRate() {
     return -m_gyro.getRate();
   }
+  
   public Encoder getRightEncoder() {
     return m_rightEncoder;
   }
+  
   public Encoder getLeftEncoder() {
     return m_leftEncoder;
   }
+  
   public double getAverageEncoderDistance() {
     return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance()) / 2.0;
   }
+  
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
   }
+  
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
@@ -94,10 +102,12 @@ public class RobotContainer extends Subsystembase {
     // Sets the direction the robot is facing as 0; makes it the new starting point
     m_gyro.reset();
   }
+  
   public void resetEncoders() {
     m_leftEncoder.reset();
     m_rightEncoder.reset();
   }
+ 
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
     m_odometry.resetPosition(pose, m_gyro.getRotation2d());
