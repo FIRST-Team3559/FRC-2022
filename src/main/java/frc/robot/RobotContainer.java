@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
@@ -26,8 +25,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class RobotContainer extends Subsystembase {
   // The robot's subsystems and commands are defined here...
   private final XboxController m_joystick1 = new XboxController(0);
-  public final static Joystick stick0 = new Joystick(0);
-  public final static Joystick stick1 = new Joystick(1);
   public final static POVButton povForward = new POVButton(stick0, 0);
   public final static POVButton povRight = new POVButton(stick0, 90);
   public final static POVButton povBackward = new POVButton(stick0, 180);
