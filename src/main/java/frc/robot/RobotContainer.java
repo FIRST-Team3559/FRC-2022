@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj.Joystick;
-
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
@@ -28,34 +27,22 @@ public class RobotContainer extends Subsystembase {
   // The robot's subsystems and commands are defined here...
   public static Joystick stick0 = new Joystick(0);
   public static Joystick stick1 = new Joystick(1);
-  
   public static POVButton povForward = new POVButton(stick0, 0);
   public static POVButton povRight = new POVButton(stick0, 90);
   public static POVButton povBackward = new POVButton(stick0, 180);
   public static POVButton povLeft = new POVButton(stick0, 270);
-  
   private final Encoder m_leftEncoder = new Encoder (DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1], DriveConstants.kLeftEncoderReversed);
   private final Encoder m_rightEncoder = new Encoder (DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1], DriveConstants.kRightEncoderReversed);
-  
   private final Gyro m_gyro = new ADXRS450_Gyro();
-  
   private final DifferentialDriveOdometry m_odometry;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    
+    // Sets the length of the pulse of each encoder, a pulse being an encoder cycle
     m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
     m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-    
-  }
-  
-  @Override
-  public void periodic() {
-    // Update the odometry in the periodic block
-    m_odometry.update(
-        m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
   /**
@@ -64,7 +51,14 @@ public class RobotContainer extends Subsystembase {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+  }
+  
+  @Override
+  public void periodic() {
+    // Update the odometry in the periodic block
+    m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -72,24 +66,40 @@ public class RobotContainer extends Subsystembase {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
     return m_autoCommand;
   }
-  
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
-  }
-  
   public double getHeading() {
     return m_gyro.getRotation2d().getDegrees();
   }
-  
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
+  public double getTurnRate() {
+    return -m_gyro.getRate();
+  }
+  public Encoder getRightEncoder() {
+    return m_rightEncoder;
+  }
+  public Encoder getLeftEncoder() {
+    return m_leftEncoder;
+  }
+  public double getAverageEncoderDistance() {
+    return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance()) / 2.0;
+  }
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
+  }
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
+  }
+  
+  public void zeroHeading() {
+    // Sets the direction the robot is facing as 0; makes it the new starting point
+    m_gyro.reset();
+  }
+  public void resetEncoders() {
+    m_leftEncoder.reset();
+    m_rightEncoder.reset();
+  }
+  public void resetOdometry(Pose2d pose) {
+    resetEncoders();
+    m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
 }
