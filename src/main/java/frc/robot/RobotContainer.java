@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.revrobotics.SparkMaxRelativeEncoder;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,8 +31,8 @@ public class RobotContainer extends Subsystembase {
   public final static POVButton povRight = new POVButton(stick0, 90);
   public final static POVButton povBackward = new POVButton(stick0, 180);
   public final static POVButton povLeft = new POVButton(stick0, 270);
-  private final Encoder m_leftEncoder = new Encoder (DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1], DriveConstants.kLeftEncoderReversed);
-  private final Encoder m_rightEncoder = new Encoder (DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1], DriveConstants.kRightEncoderReversed);
+  private final SparkMaxRelativeEncoder m_leftEncoder = new SparkMaxRelativeEncoder;
+  private final SparkMaxRelativeEncoder m_rightEncoder = new SparkMaxRelativeEncoder;
   private final Gyro m_gyro = new ADXRS450_Gyro();
   private final DifferentialDriveOdometry m_odometry;
 
