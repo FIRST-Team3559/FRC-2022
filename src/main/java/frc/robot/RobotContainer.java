@@ -26,15 +26,11 @@ public class RobotContainer {
   povRight1.whenPressed();
   povBackward1.whenPressed();
   povLeft1.whenPressed();
-  private final DifferentialDriveOdometry m_odometry;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    // Sets the length of the pulse of each encoder, 2 pulses being an encoder cycle
-    m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-    m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
   }
 
   /**
@@ -45,12 +41,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
   }
-  
-  @Override
-  public void periodic() {
-    // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
-  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -59,14 +49,5 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoCommand;
-  }
-  
-  public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
-  }
- 
-  public void resetOdometry(Pose2d pose) {
-    resetEncoders();
-    m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
 }
