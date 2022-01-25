@@ -27,10 +27,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class RobotContainer extends Subsystembase {
   // The robot's subsystems and commands are defined here...
   private final XboxController m_joystick1 = new XboxController(0);
-  public final static POVButton povForward1 = new POVButton(m_joystick1, 0, 1);
-  public final static POVButton povRight1 = new POVButton(m_joystick1, 90, 1);
-  public final static POVButton povBackward1 = new POVButton(m_joystick1, 180, 1);
-  public final static POVButton povLeft1 = new POVButton(m_joystick1, 270, 1);
+  public final static POVButton povForward1 = new POVButton(m_joystick1, 0);
+  public final static POVButton povRight1 = new POVButton(m_joystick1, 90);
+  public final static POVButton povBackward1 = new POVButton(m_joystick1, 180);
+  public final static POVButton povLeft1 = new POVButton(m_joystick1, 270);
   povForward1.whenPressed();
   povRight1.whenPressed();
   povBackward1.whenPressed();
