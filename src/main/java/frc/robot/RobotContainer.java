@@ -4,19 +4,10 @@
 
 package frc.robot;
 
-import com.revrobotics.SparkMaxRelativeEncoder;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.geometry.Pose2d;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -24,7 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer extends Subsystembase {
+public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final XboxController m_joystick1 = new XboxController(0);
   public final static POVButton povForward1 = new POVButton(m_joystick1, 0);
@@ -35,9 +26,6 @@ public class RobotContainer extends Subsystembase {
   povRight1.whenPressed();
   povBackward1.whenPressed();
   povLeft1.whenPressed();
-  private final SparkMaxRelativeEncoder m_leftEncoder = new SparkMaxRelativeEncoder;
-  private final SparkMaxRelativeEncoder m_rightEncoder = new SparkMaxRelativeEncoder;
-  private final Gyro m_gyro = new ADXRS450_Gyro();
   private final DifferentialDriveOdometry m_odometry;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -73,42 +61,8 @@ public class RobotContainer extends Subsystembase {
     return m_autoCommand;
   }
   
-  public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
-  }
-  
-  public double getTurnRate() {
-    return -m_gyro.getRate();
-  }
-  
-  public Encoder getRightEncoder() {
-    return m_rightEncoder;
-  }
-  
-  public Encoder getLeftEncoder() {
-    return m_leftEncoder;
-  }
-  
-  public double getAverageEncoderDistance() {
-    return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance()) / 2.0;
-  }
-  
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
-  }
-  
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
-  }
-  
-  public void zeroHeading() {
-    // Sets the direction the robot is facing as 0; makes it the new starting point
-    m_gyro.reset();
-  }
-  
-  public void resetEncoders() {
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
   }
  
   public void resetOdometry(Pose2d pose) {
