@@ -27,10 +27,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class RobotContainer extends Subsystembase {
   // The robot's subsystems and commands are defined here...
   private final XboxController m_joystick1 = new XboxController(0);
-  public final static POVButton povForward = new POVButton(stick0, 0);
-  public final static POVButton povRight = new POVButton(stick0, 90);
-  public final static POVButton povBackward = new POVButton(stick0, 180);
-  public final static POVButton povLeft = new POVButton(stick0, 270);
+  public final static POVButton povForward1 = new POVButton(m_joystick1, 0, 1);
+  public final static POVButton povRight1 = new POVButton(m_joystick1, 90, 1);
+  public final static POVButton povBackward1 = new POVButton(m_joystick1, 180, 1);
+  public final static POVButton povLeft1 = new POVButton(m_joystick1, 270, 1);
+  povForward1.whenPressed();
+  povRight1.whenPressed();
+  povBackward1.whenPressed();
+  povLeft1.whenPressed();
   private final SparkMaxRelativeEncoder m_leftEncoder = new SparkMaxRelativeEncoder;
   private final SparkMaxRelativeEncoder m_rightEncoder = new SparkMaxRelativeEncoder;
   private final Gyro m_gyro = new ADXRS450_Gyro();
