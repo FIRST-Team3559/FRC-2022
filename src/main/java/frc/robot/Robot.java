@@ -26,13 +26,9 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
+  
   private DifferentialDrive driveBase;
   private Joystick driverGamepad;
-  private Spark feederMotor;
-
-
-
 
   /**
    * 
@@ -124,8 +120,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveBase.tankDrive(-driverGamepad.getRawAxis(1), driverGamepad.getRawAxis(5));
-    feeder();
-
+    FeederSubsystem.feeder();
 
   }
 
@@ -147,12 +142,5 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
-
-  public void feeder() {
-    if (driverGamepad.getRawButton(1)) {
-      feederMotor.set(0.8);
-    } else {
-      feederMotor.set(0);
-    }
   }
 }
