@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -29,6 +30,13 @@ public class Robot extends TimedRobot {
   
   private DifferentialDrive driveBase;
   private Joystick driverGamepad;
+  
+  public Robot() {
+    DriveSubsystem.registerSubsystem(DriveSubsystem);
+    FeederSubsystem.registerSubsystem(FeederSubsystem);
+    TunnelSubsystem.registerSubsystem(TunnelSubsystem);
+    ShooterSubsystem.registerSubsystem(ShooterSubsystem);
+  }
 
   /**
    * 
@@ -49,7 +57,7 @@ public class Robot extends TimedRobot {
 
     driveBase = new DifferentialDrive(leftLeader, rightLeader);
 
-    driverGamepad = new Joystick(0);
+    driverGamepad = new Joystick(Constants.gamePadPort);
 
     if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
       SmartDashboard.putString("Ramp Rate", "Error");
