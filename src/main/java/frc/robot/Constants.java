@@ -19,5 +19,9 @@ public final class Constants {
     public static int RL_MOTOR_CONTROLLER_ID = 11;
     public static int FR_MOTOR_CONTROLLER_ID = 12;
     public static int RR_MOTOR_CONTROLLER_ID = 13;
+    
+    public static int feederChannel = 0;
+    
+    public static int gamePadPort = 0;
 
 }
