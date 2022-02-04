@@ -11,4 +11,4 @@ public class FeederSubsystem {
     } else {
       feederMotor.set(0);
     }
-}
+  }
