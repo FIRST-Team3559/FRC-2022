@@ -23,5 +23,4 @@ public final class Constants {
     public static int feederChannel = 0;
     
     public static int gamePadPort = 0;
-
 }
