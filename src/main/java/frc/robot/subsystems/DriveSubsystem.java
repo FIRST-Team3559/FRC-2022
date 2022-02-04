@@ -4,10 +4,8 @@ import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.robot.Constants;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.examples.ramsetecommand.Constants.DriveConstants;
@@ -28,8 +26,6 @@ public class DriveSubsystem extends SubsystemBase {
   public DifferentialDrive drivetrain = new DifferentialDrive(mcg_left, mcg_right);
   private final SparkMaxRelativeEncoder m_leftEncoder = new SparkMaxRelativeEncoder;
   private final SparkMaxRelativeEncoder m_rightEncoder = new SparkMaxRelativeEncoder;
-  private final Gyro m_gyro = new ADXRS450_Gyro();
-  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
   
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -39,25 +35,9 @@ public class DriveSubsystem extends SubsystemBase {
     
     resetEncoders();
   }
-
-  @Override
-  public void periodic() {
-    // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
-  }
-
-  // Returns the currently-estimated pose of the robot.
-  public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
-  }
   
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(m_leftEncoder.getRate(), m_rightEncoder.getRate());
-  }
-
-  public void resetOdometry(Pose2d pose) {
-    resetEncoders();
-    m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
 
   // Resets the drive encoders to currently read a position of 0.
@@ -77,20 +57,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   public Encoder getRightEncoder() {
     return m_rightEncoder;
-  }
-
-  public void zeroHeading() {
-    m_gyro.reset();
-  }
-
-  // Returns the robot's heading in degrees, from -180 to 180
-  public double getHeading() {
-    return m_gyro.getRotation2d().getDegrees();
-  }
-
-  // Returns the turn rate of the robot, in degrees per second
-  public double getTurnRate() {
-    return -m_gyro.getRate();
   }
   
   public void manualDrive(double getLeftStick, double getRightStick) {
