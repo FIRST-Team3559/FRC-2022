@@ -48,6 +48,9 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    
+    bottomTunnelMotor.enableDeadbandElimination(true);
+    topTunnelMotor.enableDeadbandElimination(true);
 
     mc_leftRear.follow(mc_leftFront);
     mc_rightRear.follow(mc_rightFront);
@@ -137,6 +140,11 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     DriveSubsystem.mcg_left.disable();
     DriveSubsystem.mcg_right.disable();
+    ShooterSubsystem.shooterMotor1.disable();
+    ShooterSubsystem.shooterMotor2.disable();
+    FeederSubsystem.feederMotor.disable();
+    TunnelSubsystem.bottomTunnelMotor.disable();
+    TunnelSubsystem.topTunnelMotor.disable();
   }
 
   /** This function is called periodically when disabled. */
