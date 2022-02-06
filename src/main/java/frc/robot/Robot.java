@@ -3,6 +3,7 @@ package frc.robot;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.commands.ManualDriveCommand;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -91,6 +93,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     DriveSubsystem.periodic();
     CommandScheduler.getInstance().run();
+    ManualDriveCommand
   }
  
   /**
