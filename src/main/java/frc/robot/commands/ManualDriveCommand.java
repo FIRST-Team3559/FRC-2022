@@ -5,11 +5,16 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.DriveSubsystem;
 
 public class ManualDriveCommand extends CommandBase {
   /** Creates a new ManualDriveCommand. */
-  public ManualDriveCommand() {
-    // Use addRequirements() here to declare subsystem dependencies.
+  DriveSubsystem m_driveSubsystem;
+  
+  public ManualDriveCommand(DriveSubsystem driveSubsystem) {
+    m_driveSubsystem = driveSubsystem;
+    
+    addRequirements(driveSubsystem);
   }
 
   // Called when the command is initially scheduled.
