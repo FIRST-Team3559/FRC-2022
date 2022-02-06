@@ -89,7 +89,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-  DriveSubsystem.periodic();
+    DriveSubsystem.periodic();
+    CommandScheduler.getInstance().run();
   }
  
   /**
