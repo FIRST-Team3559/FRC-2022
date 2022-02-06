@@ -17,15 +17,23 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final XboxController m_joystick1 = new XboxController(0);
-  public final static POVButton povForward1 = new POVButton(m_joystick1, 0);
-  public final static POVButton povRight1 = new POVButton(m_joystick1, 90);
-  public final static POVButton povBackward1 = new POVButton(m_joystick1, 180);
-  public final static POVButton povLeft1 = new POVButton(m_joystick1, 270);
-  povForward1.whenPressed();
-  povRight1.whenPressed();
-  povBackward1.whenPressed();
-  povLeft1.whenPressed();
+   private final XboxController m_joystick1 = new XboxController(0);
+   public final static POVButton povForward1 = new POVButton(m_joystick1, 0, 0);
+   public final static POVButton povForwardRight1 = new POVButton(m_joystick1, 45, 1);
+   public final static POVButton povRight1 = new POVButton(m_joystick1, 90, 2);
+   public final static POVButton povBackwardRight1 = new POVButton(m_joystick1, 135, 3);
+   public final static POVButton povBackward1 = new POVButton(m_joystick1, 180, 4);
+   public final static POVButton povBackwardLeft1 = new POVButton(m_joystick1, 225, 5);
+   public final static POVButton povLeft1 = new POVButton(m_joystick1, 270, 6);
+   public final static POVButton povForwardLeft1 = new POVButton(m_joystick1, 315, 7);
+   povForward1.whenPressed(ManualDriveCommand, true);
+   povForwardRight1.whenPressed(ManualDriveCommand, true);
+   povRight1.whenPressed(ManualDriveCommand, true);
+   povBackwardRight1.whenPressed(ManualDriveCommand, true);
+   povBackward1.whenPressed(ManualDriveCommand, true);
+   povBackwardLeft1.whenPressed(ManualDriveCommand, true);
+   povLeft1.whenPressed(ManualDriveCommand, true);
+   povForwardLeft1.whenPressed(ManualDriveCommand, true);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
