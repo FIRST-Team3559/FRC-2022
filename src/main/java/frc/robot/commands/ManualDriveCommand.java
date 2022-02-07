@@ -20,7 +20,7 @@ public class ManualDriveCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-  .getPOV(
+  m_joystick.getPOV(
   }
 
   // Called every time the scheduler runs while the command is scheduled.
