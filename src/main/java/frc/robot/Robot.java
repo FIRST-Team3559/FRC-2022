@@ -93,7 +93,16 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     DriveSubsystem.periodic();
     CommandScheduler.getInstance().run();
-    ManualDriveCommand
+    
+    povForward1.whenHeld(ManualDriveCommand, true);
+    povForwardRight1.whenHeld(ManualDriveCommand, true);
+    povRight1.whenHeld(ManualDriveCommand, true);
+    povBackwardRight1.whenHeld(ManualDriveCommand, true);
+    povBackward1.whenHeld(ManualDriveCommand, true);
+    povBackwardLeft1.whenHeld(ManualDriveCommand, true);
+    povLeft1.whenHeld(ManualDriveCommand, true);
+    povForwardLeft1.whenHeld(ManualDriveCommand, true);
+    
   }
  
   /**
