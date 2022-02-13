@@ -23,13 +23,9 @@ public final class Constants {
     
     public static int gamePadPort = 0;
     
-    public static final double kRamseteB = 2;
-    public static final double kRamseteZeta = 0.7;
-    public static final double ksVolts;
-    public static final double kvVoltSecondsPerMeter;
-    public static final double kaVoltSecondsSquaredPerMeter;
-    public static final double kPDriveVel;
-    public static final double kTrackwidthMeters;
-    public static final double kMaxSpeedMetersPerSecond;
-    public static final double kMaxAccelerationMetersPerSecondSquared;
+    public static final double kp;
+    public static final double ki;
+    public static final double kd;
+    public static final double maxVelocity;
+    public static final double maxAcceleration;
 }
