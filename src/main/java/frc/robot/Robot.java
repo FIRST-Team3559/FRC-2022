@@ -13,7 +13,10 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -32,8 +35,11 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
   private DifferentialDrive driveBase;
-  private static final DifferentialDriveKinematics kDriveKinematics;
   private Joystick driverGamepad;
+  private final HolonomicDriveController controller;
+  private PIDController xController;
+  private PIDController yController;
+  private ProfiledPIDController thetaController;
   
   public Robot() {
     DriveSubsystem.registerSubsystem(DriveSubsystem);
@@ -63,10 +69,14 @@ public class Robot extends TimedRobot {
     DriveSubsystem.getLeftEncoder.setPosition(0);
 
     driveBase = new DifferentialDrive(leftLeader, rightLeader);
-    kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
 
     driverGamepad = new Joystick(Constants.gamePadPort);
-
+    
+    controller = new HolonomicDriveController(xController, yController, thetaController);
+    xController = new PIDController(kp, ki, kd);
+    yController = new PIDController(kp, ki, kd);
+    thetaController = new ProfiledPIDController(kp, ki, kd, new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
+    
     if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
       SmartDashboard.putString("Ramp Rate", "Error");
     }
