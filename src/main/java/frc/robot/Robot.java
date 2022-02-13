@@ -13,6 +13,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
   private DifferentialDrive driveBase;
+  private static final DifferentialDriveKinematics kDriveKinematics;
   private Joystick driverGamepad;
   
   public Robot() {
@@ -61,6 +63,7 @@ public class Robot extends TimedRobot {
     DriveSubsystem.getLeftEncoder.setPosition(0);
 
     driveBase = new DifferentialDrive(leftLeader, rightLeader);
+    kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
 
     driverGamepad = new Joystick(Constants.gamePadPort);
 
@@ -102,7 +105,6 @@ public class Robot extends TimedRobot {
     povBackwardLeft1.whenHeld(ManualDriveCommand, true);
     povLeft1.whenHeld(ManualDriveCommand, true);
     povForwardLeft1.whenHeld(ManualDriveCommand, true);
-    
   }
  
   /**
