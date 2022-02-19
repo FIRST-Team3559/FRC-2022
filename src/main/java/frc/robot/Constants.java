@@ -23,9 +23,4 @@ public final class Constants {
     
     public static int gamePadPort = 0;
     
-    public static final double kp;
-    public static final double ki;
-    public static final double kd;
-    public static final double maxVelocity;
-    public static final double maxAcceleration;
 }
