@@ -42,6 +42,8 @@ public class Robot extends TimedRobot {
   private DifferentialDrive driveBase;
   private Joystick driverGamepad;
   
+  private Thread m_visionThread;
+  
   public Robot() {
     DriveSubsystem.registerSubsystem(DriveSubsystem);
     FeederSubsystem.registerSubsystem(FeederSubsystem);
@@ -68,13 +70,36 @@ public class Robot extends TimedRobot {
     
     DriveSubsystem.getRightEncoder.setPosition(0);
     DriveSubsystem.getLeftEncoder.setPosition(0);
+    
+    m_visionThread = new Thread(
+      () -> {
+        UsbCamera camera = CameraServer.startAutomaticCapture();
+        camera.setResolution(640, 480);
+        CvSink cvSink = CameraServer.getVideo();
+        CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
+        Mat mat = new Mat();
+        while (!Thread.interrupted()) {
+                // Tell the CvSink to grab a frame from the camera and put it
+                // in the source mat.  If there is an error notify the output.
+                if (cvSink.grabFrame(mat) == 0) {
+                  // Send the output the error.
+                  outputStream.notifyError(cvSink.getError());
+                  // skip the rest of the current iteration
+                  continue;
+                }
+                Imgproc.rectangle(
+                    mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
+                // Give the output stream a new image to display
+                outputStream.putFrame(mat);
+              }
+            });
+    
+    m_visionThread.setDaemon(true);
+    m_visionThread.start();
 
     driveBase = new DifferentialDrive(leftLeader, rightLeader);
 
     driverGamepad = new Joystick(Constants.gamePadPort);
-    
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(640, 480);
     
     if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
       SmartDashboard.putString("Ramp Rate", "Error");
