@@ -71,24 +71,28 @@ public class Robot extends TimedRobot {
     DriveSubsystem.getRightEncoder.setPosition(0);
     DriveSubsystem.getLeftEncoder.setPosition(0);
     
+    /* Creates a thread which converts color images into grayscale,
+    and then detects circle shapes which the robot will go to */
     m_visionThread = new Thread(
       () -> {
+        // Starts the camera and sets the resolution, or frame size
         UsbCamera camera = CameraServer.startAutomaticCapture();
         camera.setResolution(640, 480);
+        /* Initializes a sink and allows the Mat to access 
+        camera images from the sink */
         CvSink cvSink = CameraServer.getVideo();
-        CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
+        CvSource outputStream = CameraServer.putVideo("Circle", 640, 480);
         Mat mat = new Mat();
         while (!Thread.interrupted()) {
-                // Tell the CvSink to grab a frame from the camera and put it
-                // in the source mat.  If there is an error notify the output.
+                /* Tell the CvSink to grab a frame from the camera and put it
+                in the source mat.  If there is an error notify the output */
                 if (cvSink.grabFrame(mat) == 0) {
                   // Send the output the error.
                   outputStream.notifyError(cvSink.getError());
                   // skip the rest of the current iteration
                   continue;
                 }
-                Imgproc.rectangle(
-                    mat, new Point(100, 100), new Point(400, 400), new Scalar(255, 255, 255), 5);
+                Imgproc.HoughCircles(mat, new mat.Mat(), mat.HOUGH_GRADIENT, 1, 45, 75, 40, 20, 80);
                 // Give the output stream a new image to display
                 outputStream.putFrame(mat);
               }
