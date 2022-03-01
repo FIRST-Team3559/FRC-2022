@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.revrobotics.SparkMaxRelativeEncoder.Type;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -20,4 +22,8 @@ public final class Constants {
     public static int FR_MOTOR_CONTROLLER_ID = 12;
     public static int RR_MOTOR_CONTROLLER_ID = 13;
 
+    public static final Type kHallSensor = null;
+    public static final int countsPerRev = 42;
+    public static final int kTrackwidthMeters = 0;
+    public static final int kEncoderDistancePerPulse = 0;
 }

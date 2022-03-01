@@ -4,9 +4,25 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.DriveBaseSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,19 +31,69 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private static final String kDefaultAuto = "Default";
+  private static final String kCustomAuto = "My Auto";
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private RobotContainer m_robotContainer;
+  private DifferentialDrive driveBase;
+  public Joystick leftStick;
+  public Joystick rightStick;
+  public Joystick operatorStick;
+  private static final int leftLeaderDeviceID = 10;
+  private static final int leftFollowerDeviceID = 11;
+  private static final int rightLeaderDeviceID = 12;
+  private static final int rightFollowerDeviceID = 13;
+  private CANSparkMax leftLeader, leftFollower, rightLeader, rightFollower;
+  private Spark feederMotor;
+  private Spark ballTunnel;
+
 
   /**
+   * 
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    m_chooser.addOption("My Auto", kCustomAuto);
+    SmartDashboard.putData("Auto choices", m_chooser);
+    
+    leftLeader = new CANSparkMax(leftLeaderDeviceID, MotorType.kBrushless);
+    leftFollower = new CANSparkMax(leftFollowerDeviceID, MotorType.kBrushless);
+    rightLeader = new CANSparkMax(rightLeaderDeviceID, MotorType.kBrushless);
+    rightFollower = new CANSparkMax(rightFollowerDeviceID, MotorType.kBrushless);
+    
+    leftFollower.follow(leftLeader);
+    rightFollower.follow(rightLeader);
+
+    feederMotor = new Spark(0);
+    ballTunnel = new Spark(1);
+
+    driveBase = new DifferentialDrive(leftLeader, rightLeader);
+
+    leftStick = new Joystick(0);
+    rightStick = new Joystick(1);
+    operatorStick = new Joystick(2);
+
+    if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+
+    if(leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+
+    if(rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+
+    if(rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+
+    CameraServer.startAutomaticCapture();
   }
 
   /**
@@ -39,57 +105,148 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
   }
 
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  /**
+   * This autonomous (along with the chooser code above) shows how to select between different
+   * autonomous modes using the dashboard. The sendable chooser code works with the Java
+   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
+   * uncomment the getString line to get the auto name from the text box below the Gyro
+   *
+   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
+   * below with additional strings. If using the SendableChooser make sure to add them to the
+   * chooser code above as well.
+   */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autoSelected = m_chooser.getSelected();
+    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    System.out.println("Auto selected: " + m_autoSelected);
+    DriveBaseSubsystem.gyroAngle = new Rotation2d(0);
+    DriveBaseSubsystem.m_odometry.resetPosition(0, DriveBaseSubsystem.gyroAngle);
+    DriveBaseSubsystem.gyro.reset();
+    rightLeader.setSafetyEnabled(true);
+    leftLeader.setSafetyEnabled(true);
+    
+    rightLeader.setExpiration(3);
+    leftLeader.setExpiration(3);
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    /* Creates a thread which converts color images into grayscale,
+    and then detects circle shapes which the robot will go to */
+Thread m_visionThread = new Thread(
+      () -> {
+        // Initializes a sink and allows the Mat to access 
+        // camera images from the sink 
+        CvSink cvSink = CameraServer.getVideo();
+        CvSource outputStream = CameraServer.putVideo("Circle", 640, 480);
+        Mat mat = new Mat();
+        while (!Thread.interrupted()) {
+                // Tell the CvSink to grab a frame from the camera and put it
+                // in the source mat.  If there is an error notify the output
+                if (cvSink.grabFrame(mat) == 0) {
+                  // Send the output the error.
+                  outputStream.notifyError(cvSink.getError());
+                  // skip the rest of the current iteration
+                  continue;
+                }
+                Imgproc.cvtColor(mat, mat, COLOR_BGR2GRAY, 3);
+                Imgproc.HoughCircles(mat, mat, mat.HOUGH_GRADIENT, 1, 45, 75, 40, 20, 80);
+                // Give the output stream a new image to display
+                outputStream.putFrame(mat);
+              }
+            });
+    
+    m_visionThread.setDaemon(true);
+    m_visionThread.start();  
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+  public void autonomousPeriodic() {
+    switch (m_autoSelected) {
+      case kCustomAuto:
+        // Put custom auto code here
+         driveBase.tankDrive(.5, .5);
+        motorStop();
+        driveBase.curvatureDrive(0, 90, true);
+        motorStop();
+        driveBase.tankDrive(.5, .5);
+        motorStop();
+        break;
+      case kDefaultAuto:
+         driveBase.tankDrive(.5, .5);
+        motorStop();
+        driveBase.curvatureDrive(0, 90, true);
+        motorStop();
+        driveBase.tankDrive(.5, .5);
+        motorStop();
+        break;
+      default:
+        // Put default auto code here
+         driveBase.tankDrive(.5, .5);
+        motorStop();
+        driveBase.curvatureDrive(0, 90, true);
+        motorStop();
+        driveBase.tankDrive(.5, .5);
+        motorStop();
+        break;
     }
   }
 
+  /** This function is called once when teleop is enabled. */
+  @Override
+  public void teleopInit() {}
+
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    driveBase.tankDrive(-driverGamepad.getRawAxis(1), driverGamepad.getRawAxis(5));
+    feeder();
+    tunnel();
 
+    }
+  
+
+  /** This function is called once when the robot is disabled. */
   @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
+  public void disabledInit() {}
+
+  /** This function is called periodically when disabled. */
+  @Override
+  public void disabledPeriodic() {}
+
+  /** This function is called once when test mode is enabled. */
+  @Override
+  public void testInit() {}
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+ 
+  public void feeder() {
+    if (operatorGamepad.getRawButton(6)) {
+      feederMotor.set(.5);
+    } 
+    else {
+    if (operatorGamepad.getRawButton(5)) {
+      feederMotor.set(-.5);
+    }
+    else {
+      feederMotor.set(0);
+    }
+  }
+}
+  public void tunnel() {
+    if (operatorGamepad.getRawButton(2)) {
+      ballTunnel.set(-.7);
+    } else {
+      ballTunnel.set(0);
+    }
+  }
+  public void motorStop() {
+    if(!rightLeader.isAlive() && !leftLeader.isAlive()) {
+      rightLeader.stopMotor();
+      leftLeader.stopMotor();
+    }
+  }
 }
