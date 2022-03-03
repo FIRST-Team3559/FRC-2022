@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.SparkMaxRelativeEncoder;
+import frc.robot.Constants;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -10,7 +11,6 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -19,29 +19,30 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public class DriveBaseSubsystem extends SubsystemBase {
   // Motor controllers Left
-  public static CANSparkMax mc_leftFront = new CANSparkMax(Constants.FL_MOTOR_CONTROLLER_ID, MotorType.kBrushless);
-  public CANSparkMax mc_leftRear = new CANSparkMax(Constants.RL_MOTOR_CONTROLLER_ID, MotorType.kBrushless);
-  public MotorControllerGroup mcg_left = new MotorControllerGroup(mc_leftFront, mc_leftRear);
+  public static CANSparkMax leftLeader = new CANSparkMax(Constants.leftLeaderDeviceID, MotorType.kBrushless);
+  public static CANSparkMax leftFollower = new CANSparkMax(Constants.leftFollowerDeviceID, MotorType.kBrushless);
+  public MotorControllerGroup mcg_left = new MotorControllerGroup(leftLeader, leftFollower);
   // Motor controllers Right
-  public static CANSparkMax mc_rightFront = new CANSparkMax(Constants.FR_MOTOR_CONTROLLER_ID, MotorType.kBrushless);
-  public CANSparkMax mc_rightRear = new CANSparkMax(Constants.RR_MOTOR_CONTROLLER_ID, MotorType.kBrushless);
-  public MotorControllerGroup mcg_right = new MotorControllerGroup(mc_rightFront, mc_rightRear);
+  public static CANSparkMax rightLeader = new CANSparkMax(Constants.rightLeaderDeviceID, MotorType.kBrushless);
+  public static CANSparkMax rightFollower = new CANSparkMax(Constants.rightFollowerDeviceID, MotorType.kBrushless);
+  public MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
   
   public DifferentialDrive drivetrain = new DifferentialDrive(mcg_left, mcg_right);
-  private final static RelativeEncoder m_leftEncoder = mc_leftFront.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
-  private final static RelativeEncoder m_rightEncoder = mc_rightFront.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  private final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  private final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
   public static ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(Constants.kTrackwidthMeters);
   public static Rotation2d gyroAngle = new Rotation2d(0);
   public static DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(gyroAngle);
   public static Pose2d m_pose;
+  public static DifferentialDrive driveBase;
   
   /** Creates a new DriveSubsystem. 
    * @return */
   public void DriveSubsystem() {
     // Sets the distance per pulse for the encoders
-    m_leftEncoder.setDistancePerPulse(Constants.kEncoderDistancePerPulse);
-    m_rightEncoder.setDistancePerPulse(Constants.kEncoderDistancePerPulse);
+    ((Encoder) m_leftEncoder).setDistancePerPulse(Constants.kEncoderDistancePerPulse);
+    ((Encoder) m_rightEncoder).setDistancePerPulse(Constants.kEncoderDistancePerPulse);
     
     resetEncoders();
   }
@@ -78,9 +79,5 @@ public void periodic() {
 
   public RelativeEncoder getRightEncoder() {
     return m_rightEncoder;
-  }
-  
-  public void manualDrive(double getLeftStick, double getRightStick) {
-    drivetrain.tankDrive(getLeftStick, getRightStick);
   }
 }

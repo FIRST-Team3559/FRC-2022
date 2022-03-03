@@ -17,13 +17,18 @@ import com.revrobotics.SparkMaxRelativeEncoder.Type;
 public final class Constants {
 
     // SparkMAX CAN IDs for driveBase
-    public static int FL_MOTOR_CONTROLLER_ID = 10;
-    public static int RL_MOTOR_CONTROLLER_ID = 11;
-    public static int FR_MOTOR_CONTROLLER_ID = 12;
-    public static int RR_MOTOR_CONTROLLER_ID = 13;
+    public static final int leftLeaderDeviceID = 10;
+    public static final int leftFollowerDeviceID = 11;
+    public static final int rightLeaderDeviceID = 12;
+    public static final int rightFollowerDeviceID = 13;
 
     public static final Type kHallSensor = null;
     public static final int countsPerRev = 42;
     public static final int kTrackwidthMeters = 0;
     public static final int kEncoderDistancePerPulse = 0;
+
+    public static final int ballTunnelChannel = 0;
+    public static final int feederChannel = 1;
+    public static final int shooterMotor1Channel = 2;
+    public static final int shooterMotor2Channel = 3;
 }

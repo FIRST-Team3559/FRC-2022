@@ -5,10 +5,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.wpilibj.Joystick;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -18,9 +21,36 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  /* Creates a thread which converts color images into grayscale,
+    and then detects circle shapes which the robot will go to */ 
+  public static Joystick leftStick;
+  public static Joystick rightStick;
+  public static Joystick operatorStick;
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  public static Thread m_visionThread = new Thread(
+    () -> {
+      // Initializes a sink and allows the Mat to access 
+      // camera images from the sink 
+      CvSink cvSink = CameraServer.getVideo();
+      CvSource outputStream = CameraServer.putVideo("Circle", 640, 480);
+      Mat mat = new Mat();
+      while (!Thread.interrupted()) {
+              // Tell the CvSink to grab a frame from the camera and put it
+              // in the source mat.  If there is an error notify the output
+              if (cvSink.grabFrame(mat) == 0) {
+                // Send the output the error.
+                outputStream.notifyError(cvSink.getError());
+                // skip the rest of the current iteration
+                continue;
+              }
+              Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY, 3);
+              Imgproc.HoughCircles(mat, mat, Imgproc.HOUGH_GRADIENT, 1, 45, 75, 40, 20, 80);
+              // Give the output stream a new image to display
+              outputStream.putFrame(mat);
+            }
+          }
+  );
+ 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -43,6 +73,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+
   }
 }
