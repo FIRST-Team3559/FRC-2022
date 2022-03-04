@@ -10,7 +10,10 @@ public class TunnelSubsystem extends SubsystemBase {
   
   public static void tunnel() {
     if (RobotContainer.operatorStick.getRawButton(3)) {
-      ballTunnelMotor.set(-.7);
+      ballTunnelMotor.set(.7);
+    } else {
+    if (RobotContainer.operatorStick.getRawButton(2)) {
+      ballTunnelMotor.set(-.7);  
     } else {
       ballTunnelMotor.set(0);
     }
