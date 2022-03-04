@@ -18,24 +18,21 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class DriveBaseSubsystem extends SubsystemBase {
-  // Motor controllers Left
   public static CANSparkMax leftLeader = new CANSparkMax(Constants.leftLeaderDeviceID, MotorType.kBrushless);
   public static CANSparkMax leftFollower = new CANSparkMax(Constants.leftFollowerDeviceID, MotorType.kBrushless);
-  public MotorControllerGroup mcg_left = new MotorControllerGroup(leftLeader, leftFollower);
-  // Motor controllers Right
+  public static MotorControllerGroup mcg_left = new MotorControllerGroup(leftLeader, leftFollower);
   public static CANSparkMax rightLeader = new CANSparkMax(Constants.rightLeaderDeviceID, MotorType.kBrushless);
   public static CANSparkMax rightFollower = new CANSparkMax(Constants.rightFollowerDeviceID, MotorType.kBrushless);
-  public MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
-  
-  public DifferentialDrive drivetrain = new DifferentialDrive(mcg_left, mcg_right);
-  private final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
-  private final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  public static MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
+  public static DifferentialDrive driveTrain = new DifferentialDrive(mcg_left, mcg_right);
+
+  public final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  public final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
   public static ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(Constants.kTrackwidthMeters);
   public static Rotation2d gyroAngle = new Rotation2d(0);
   public static DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(gyroAngle);
   public static Pose2d m_pose;
-  public static DifferentialDrive driveBase;
   
   /** Creates a new DriveSubsystem. 
    * @return */
@@ -71,13 +68,5 @@ public void periodic() {
   // Gets the average distance of the two encoders.
   public double getAverageEncoderDistance() {
     return (m_leftEncoder.getPosition() + m_rightEncoder.getPosition()) / 2.0;
-  }
-
-  public RelativeEncoder getLeftEncoder() {
-    return m_leftEncoder;
-  }
-
-  public RelativeEncoder getRightEncoder() {
-    return m_rightEncoder;
   }
 }

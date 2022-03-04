@@ -10,7 +10,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static Spark shooterMotor2 = new Spark(Constants.shooterMotor2Channel);
     
   public static void shooter() {
-    double[] motorSpeeds = {.1, .15, .2, .25, .3, .35, .4, .5, .6, .7, .8, 1};
+    double[] motorSpeeds = {.1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .8};
     
     if (RobotContainer.operatorStick.getRawButton(2)) {
       for (int i = 0; i < motorSpeeds.length; i++) {

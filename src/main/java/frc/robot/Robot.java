@@ -4,17 +4,18 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Joystick;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotContainer;
+import frc.robot.subsystems.DriveBaseSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.TunnelSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -38,30 +39,23 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    {
+      if(DriveBaseSubsystem.leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+        SmartDashboard.putString("Ramp Rate", "Error");
+      }
     
-    leftFollower.follow(leftLeader);
-    rightFollower.follow(rightLeader);
-
-    driveBase = new DifferentialDrive(leftLeader, rightLeader);
-
-    leftStick = new Joystick(0);
-    rightStick = new Joystick(1);
-    operatorStick = new Joystick(2);
-
-    if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-      SmartDashboard.putString("Ramp Rate", "Error");
-    }
-
-    if(leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-      SmartDashboard.putString("Ramp Rate", "Error");
-    }
-
-    if(rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-      SmartDashboard.putString("Ramp Rate", "Error");
-    }
-
-    if(rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-      SmartDashboard.putString("Ramp Rate", "Error");
+      if(DriveBaseSubsystem.leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+        SmartDashboard.putString("Ramp Rate", "Error");
+      }
+    
+      if(DriveBaseSubsystem.rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+        SmartDashboard.putString("Ramp Rate", "Error");
+      }
+    
+      if(DriveBaseSubsystem.rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+        SmartDashboard.putString("Ramp Rate", "Error");
+      }
     }
 
     CameraServer.startAutomaticCapture();
@@ -94,9 +88,9 @@ public class Robot extends TimedRobot {
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
-    DriveBaseSubsystem.gyroAngle = new Rotation2d(0);
-    DriveBaseSubsystem.m_odometry.resetPosition(new Pose2d(), DriveBaseSubsystem.gyroAngle);
-    DriveBaseSubsystem.gyro.reset();
+    // DriveBaseSubsystem.gyroAngle = new Rotation2d(0);
+    // DriveBaseSubsystem.m_odometry.resetPosition(new Pose2d(), DriveBaseSubsystem.gyroAngle);
+    // DriveBaseSubsystem.gyro.reset();
   
     RobotContainer.m_visionThread.setDaemon(true);
     RobotContainer.m_visionThread.start();
@@ -111,13 +105,13 @@ public class Robot extends TimedRobot {
       case kDefaultAuto:
       default:
         // Put default auto code here
-        driveBase.setSafetyEnabled(true);
-        driveBase.tankDrive(.5, .5);
-        driveBase.setExpiration(1000);
-        driveBase.curvatureDrive(0, 90, true);
-        driveBase.setExpiration(1000);
-        driveBase.tankDrive(.5, .5);
-        driveBase.setExpiration(1000);
+        /* DriveBaseSubsystem.driveTrain.setSafetyEnabled(true);
+        DriveBaseSubsystem.driveTrain.tankDrive(.5, .5);
+        DriveBaseSubsystem.driveTrain.setExpiration(1000);
+        DriveBaseSubsystem.driveTrain.curvatureDrive(0, 90, true);
+        DriveBaseSubsystem.driveTrain.setExpiration(1000);
+        DriveBaseSubsystem.driveTrain.tankDrive(.5, .5);
+        DriveBaseSubsystem.driveTrain.setExpiration(1000); */
         break;
     }
   }
@@ -126,10 +120,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {}
 
-  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    driveBase.tankDrive(leftStick.getRawAxis(1), rightStick.getRawAxis(5));
+    DriveBaseSubsystem.driveTrain.tankDrive(RobotContainer.leftStick.getRawAxis(1), RobotContainer.rightStick.getRawAxis(5));
     FeederSubsystem.feeder();
     TunnelSubsystem.tunnel();
     ShooterSubsystem.shooter();
