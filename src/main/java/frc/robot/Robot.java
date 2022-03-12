@@ -5,12 +5,10 @@
 package frc.robot;
 
 import com.revrobotics.REVLibError;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.Joystick;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -61,6 +59,12 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     SmartDashboard.putData("Autonomous", m_chooser);
+    SmartDashboard.putNumber("Drive Train RPM", m_leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Position", position);
+    SmartDashboard.putNumber("Shooter Motor 1 Speed", shooterMotor1.get());
+    SmartDashboard.putNumber("Shooter Motor 2 Speed", shooterMotor2.get());
+    SmartDashboard.putNumber("Tunnel Motor Speed", ballTunnelMotor.get());
+    SmartDashboard.putNumber("Feeder Motor Speed", feederMotor.get());
 
     {
       if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
@@ -92,7 +96,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
   }
 
   /**
@@ -112,6 +115,8 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
     m_leftEncoder.setPosition(position);
     m_rightEncoder.setPosition(position);
+    shooter();
+    driveTrain.tankDrive(-.7, -.7);
   }
 
   /** This function is called periodically during autonomous. */
@@ -120,8 +125,6 @@ public class Robot extends TimedRobot {
     switch (m_autoSelected) {
       case kDefaultAuto:
       default:
-      shooter();
-      driveTrain.tankDrive(-.7, -.7);
       position = m_leftEncoder.getPosition();
       if(position == 5) {
         leftLeader.stopMotor();
@@ -150,6 +153,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    position = m_leftEncoder.getPosition();
     driveTrain.tankDrive(leftStick.getRawAxis(1), rightStick.getRawAxis(5));
     feeder();
     tunnel();
