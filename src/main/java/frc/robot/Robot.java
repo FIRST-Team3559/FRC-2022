@@ -11,6 +11,13 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.Joystick;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -23,6 +30,28 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  public static CANSparkMax leftLeader = new CANSparkMax(Constants.leftLeaderDeviceID, MotorType.kBrushless);
+  public static CANSparkMax leftFollower = new CANSparkMax(Constants.leftFollowerDeviceID, MotorType.kBrushless);
+  public static MotorControllerGroup mcg_left = new MotorControllerGroup(leftLeader, leftFollower);
+
+  public static CANSparkMax rightLeader = new CANSparkMax(Constants.rightLeaderDeviceID, MotorType.kBrushless);
+  public static CANSparkMax rightFollower = new CANSparkMax(Constants.rightFollowerDeviceID, MotorType.kBrushless);
+  public static MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
+  public static DifferentialDrive driveTrain = new DifferentialDrive(mcg_left, mcg_right);
+
+  public final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  public final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  private static double position = 0;
+
+  public static Spark feederMotor = new Spark (Constants.feederChannel);
+  public static Spark shooterMotor1 = new Spark(Constants.shooterMotor1Channel);
+  public static Spark shooterMotor2 = new Spark(Constants.shooterMotor2Channel);
+  public static Spark ballTunnelMotor = new Spark(Constants.ballTunnelChannel);
+
+  public static Joystick leftStick = new Joystick(0);
+  public static Joystick rightStick = new Joystick(1);
+  public static Joystick operatorStick = new Joystick(2);
+
   /**
    * 
    * This function is run when the robot is first started up and should be used for any
@@ -34,19 +63,19 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Autonomous", m_chooser);
 
     {
-      if(RobotContainer.leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     
-      if(RobotContainer.leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     
-      if(RobotContainer.rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     
-      if(RobotContainer.rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     }
@@ -81,8 +110,8 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-    RobotContainer.m_leftEncoder.setPosition(Constants.position);
-    RobotContainer.m_rightEncoder.setPosition(Constants.position);
+    m_leftEncoder.setPosition(position);
+    m_rightEncoder.setPosition(position);
   }
 
   /** This function is called periodically during autonomous. */
@@ -91,24 +120,24 @@ public class Robot extends TimedRobot {
     switch (m_autoSelected) {
       case kDefaultAuto:
       default:
-      RobotContainer.shooter();
-      RobotContainer.driveTrain.tankDrive(-.7, -.7);
-      Constants.position = RobotContainer.m_leftEncoder.getPosition();
-      if(Constants.position == 5) {
-        RobotContainer.leftLeader.stopMotor();
-        RobotContainer.rightLeader.stopMotor();
-        RobotContainer.feeder();
-        RobotContainer.shooter();
-        Constants.position = 0;
-        RobotContainer.m_leftEncoder.setPosition(Constants.position);
-        RobotContainer.driveTrain.tankDrive(.7, .7);
-        while (Constants.position != 5) {
-          Constants.position = RobotContainer.m_leftEncoder.getPosition();
+      shooter();
+      driveTrain.tankDrive(-.7, -.7);
+      position = m_leftEncoder.getPosition();
+      if(position == 5) {
+        leftLeader.stopMotor();
+        rightLeader.stopMotor();
+        feeder();
+        shooter();
+        position = 0;
+        m_leftEncoder.setPosition(position);
+        driveTrain.tankDrive(.7, .7);
+        while (position != 5) {
+          position = m_leftEncoder.getPosition();
         }
-        if(Constants.position == 5) {
-          RobotContainer.leftLeader.stopMotor();
-          RobotContainer.rightLeader.stopMotor();
-          RobotContainer.shooter();
+        if(position == 5) {
+          leftLeader.stopMotor();
+          rightLeader.stopMotor();
+          shooter();
         }
       }
         break;
@@ -121,10 +150,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    RobotContainer.driveTrain.tankDrive(RobotContainer.leftStick.getRawAxis(1), RobotContainer.rightStick.getRawAxis(5));
-    RobotContainer.feeder();
-    RobotContainer.tunnel();
-    RobotContainer.shooter();
+    driveTrain.tankDrive(leftStick.getRawAxis(1), rightStick.getRawAxis(5));
+    feeder();
+    tunnel();
+    shooter();
     }
   
 
@@ -143,4 +172,31 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+  public static void tunnel() {
+    if (operatorStick.getRawButton(3)) {
+      ballTunnelMotor.set(-.7);
+    } else {
+      ballTunnelMotor.set(0);
+    }
+  }
+
+  public static void feeder() {
+    if (operatorStick.getRawButton(5)) {
+      feederMotor.set(0.5);
+    } else {
+    if (operatorStick.getRawButton(4)) {
+      feederMotor.set(-.5);
+    } else {
+      feederMotor.set(0);
+    }
+  }
+}
+
+  public static void shooter() {
+    if (operatorStick.getRawButton(2)) {
+        shooterMotor1.set(.9);
+    }
+  }
+
 }

@@ -29,5 +29,4 @@ public final class Constants {
 
     public static final Type kHallSensor = null;
     public static final int countsPerRev = 42;
-    public static double position = 0;
 }
