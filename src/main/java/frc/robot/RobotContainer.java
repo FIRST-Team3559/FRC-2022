@@ -6,12 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.wpilibj.Joystick;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -21,43 +22,58 @@ import org.opencv.imgproc.Imgproc;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  /* Creates a thread which converts color images into grayscale,
-    and then detects circle shapes which the robot will go to */ 
-    public static Joystick leftStick = new Joystick(0);
-    public static Joystick rightStick = new Joystick(1);
-    public static Joystick operatorStick = new Joystick(2);
+  public static CANSparkMax leftLeader = new CANSparkMax(Constants.leftLeaderDeviceID, MotorType.kBrushless);
+  public static CANSparkMax leftFollower = new CANSparkMax(Constants.leftFollowerDeviceID, MotorType.kBrushless);
+  public static MotorControllerGroup mcg_left = new MotorControllerGroup(leftLeader, leftFollower);
+  public static CANSparkMax rightLeader = new CANSparkMax(Constants.rightLeaderDeviceID, MotorType.kBrushless);
+  public static CANSparkMax rightFollower = new CANSparkMax(Constants.rightFollowerDeviceID, MotorType.kBrushless);
+  public static MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
+  public static DifferentialDrive driveTrain = new DifferentialDrive(mcg_left, mcg_right);
+  public final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  public final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
+  public static Spark feederMotor = new Spark (Constants.feederChannel);
+  public static Spark shooterMotor1 = new Spark(Constants.shooterMotor1Channel);
+  public static Spark shooterMotor2 = new Spark(Constants.shooterMotor2Channel);
+  public static Spark ballTunnelMotor = new Spark(Constants.ballTunnelChannel);
 
-   public static Thread m_visionThread = new Thread(
-    new Runnable() {
-      @Override
-      public void run() {
-        // Initializes a sink and allows the Mat to access 
-        // camera images from the sink 
-        CvSink cvSink = CameraServer.getVideo();
-        CvSource outputStream = CameraServer.putVideo("Circle", 640, 480);
-        Mat mat = new Mat();
-        while (!Thread.interrupted()) {
-                // Tell the CvSink to grab a frame from the camera and put it
-                // in the source mat.  If there is an error notify the output
-                if (cvSink.grabFrame(mat) == 0) {
-                  // Send the output the error.
-                  outputStream.notifyError(cvSink.getError());
-                  // skip the rest of the current iteration
-                  continue;
-                }
-                Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY, 3);
-                Imgproc.HoughCircles(mat, mat, Imgproc.HOUGH_GRADIENT, 1, 45, 75, 40, 20, 80);
-                // Give the output stream a new image to display
-                outputStream.putFrame(mat);
-        }
-      }
-    }
-   );
+  public static Joystick leftStick = new Joystick(0);
+  public static Joystick rightStick = new Joystick(1);
+  public static Joystick operatorStick = new Joystick(2);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+  }
+
+  public static void tunnel() {
+    if (RobotContainer.operatorStick.getRawButton(3)) {
+      ballTunnelMotor.set(-.7);
+    } else {
+      ballTunnelMotor.set(0);
+    }
+  }
+
+  public static void feeder() {
+    if (operatorStick.getRawButton(5)) {
+      feederMotor.set(0.5);
+    } else {
+    if (operatorStick.getRawButton(4)) {
+      feederMotor.set(-.5);
+    } else {
+      feederMotor.set(0);
+    }
+  }
+}
+
+  public static void shooter() {
+    double[] motorSpeeds = {.1, .15, .2, .25, .3, .35, .4, .45, .5, .55, .6, .65, .7, .8, .9};
+    
+    if (RobotContainer.operatorStick.getRawButton(2)) {
+      for (int i = 0; i < motorSpeeds.length; i++) {
+        shooterMotor1.set(i);
+      }
+    }
   }
 
   /**

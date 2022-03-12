@@ -22,13 +22,12 @@ public final class Constants {
     public static final int rightLeaderDeviceID = 12;
     public static final int rightFollowerDeviceID = 13;
 
-    public static final Type kHallSensor = null;
-    public static final int countsPerRev = 42;
-    public static final int kTrackwidthMeters = 0;
-    public static final int kEncoderDistancePerPulse = 0;
-
     public static final int ballTunnelChannel = 0;
     public static final int feederChannel = 1;
     public static final int shooterMotor1Channel = 2;
     public static final int shooterMotor2Channel = 3;
+
+    public static final Type kHallSensor = null;
+    public static final int countsPerRev = 42;
+    public static double position = 0;
 }

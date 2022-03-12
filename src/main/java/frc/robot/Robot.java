@@ -7,15 +7,10 @@ package frc.robot;
 import com.revrobotics.REVLibError;
 
 import edu.wpi.first.cameraserver.CameraServer;
-// import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.DriveBaseSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.TunnelSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -25,7 +20,6 @@ import frc.robot.subsystems.ShooterSubsystem;
  */
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -37,23 +31,22 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    SmartDashboard.putData("Autonomous", m_chooser);
 
     {
-      if(DriveBaseSubsystem.leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(RobotContainer.leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     
-      if(DriveBaseSubsystem.leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(RobotContainer.leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     
-      if(DriveBaseSubsystem.rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(RobotContainer.rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     
-      if(DriveBaseSubsystem.rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      if(RobotContainer.rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
         SmartDashboard.putString("Ramp Rate", "Error");
       }
     }
@@ -70,6 +63,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    CommandScheduler.getInstance().run();
   }
 
   /**
@@ -87,31 +81,36 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-
-    // DriveBaseSubsystem.gyroAngle = new Rotation2d(0);
-    // DriveBaseSubsystem.m_odometry.resetPosition(new Pose2d(), DriveBaseSubsystem.gyroAngle);
-    // DriveBaseSubsystem.gyro.reset();
-  
-    RobotContainer.m_visionThread.setDaemon(true);
-    RobotContainer.m_visionThread.start();
+    RobotContainer.m_leftEncoder.setPosition(Constants.position);
+    RobotContainer.m_rightEncoder.setPosition(Constants.position);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
       case kDefaultAuto:
       default:
-        // Put default auto code here
-        /* DriveBaseSubsystem.driveTrain.setSafetyEnabled(true);
-        DriveBaseSubsystem.driveTrain.tankDrive(.5, .5);
-        DriveBaseSubsystem.driveTrain.setExpiration(1000);
-        DriveBaseSubsystem.driveTrain.curvatureDrive(0, 90, true);
-        DriveBaseSubsystem.driveTrain.setExpiration(1000);
-        DriveBaseSubsystem.driveTrain.tankDrive(.5, .5);
-        DriveBaseSubsystem.driveTrain.setExpiration(1000); */
+      RobotContainer.shooter();
+      RobotContainer.driveTrain.tankDrive(-.7, -.7);
+      Constants.position = RobotContainer.m_leftEncoder.getPosition();
+      if(Constants.position == 5) {
+        RobotContainer.leftLeader.stopMotor();
+        RobotContainer.rightLeader.stopMotor();
+        RobotContainer.feeder();
+        RobotContainer.shooter();
+        Constants.position = 0;
+        RobotContainer.m_leftEncoder.setPosition(Constants.position);
+        RobotContainer.driveTrain.tankDrive(.7, .7);
+        while (Constants.position != 5) {
+          Constants.position = RobotContainer.m_leftEncoder.getPosition();
+        }
+        if(Constants.position == 5) {
+          RobotContainer.leftLeader.stopMotor();
+          RobotContainer.rightLeader.stopMotor();
+          RobotContainer.shooter();
+        }
+      }
         break;
     }
   }
@@ -122,10 +121,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    DriveBaseSubsystem.driveTrain.tankDrive(RobotContainer.leftStick.getRawAxis(1), RobotContainer.rightStick.getRawAxis(5));
-    FeederSubsystem.feeder();
-    TunnelSubsystem.tunnel();
-    ShooterSubsystem.shooter();
+    RobotContainer.driveTrain.tankDrive(RobotContainer.leftStick.getRawAxis(1), RobotContainer.rightStick.getRawAxis(5));
+    RobotContainer.feeder();
+    RobotContainer.tunnel();
+    RobotContainer.shooter();
     }
   
 
