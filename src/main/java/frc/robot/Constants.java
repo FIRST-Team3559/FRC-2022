@@ -21,6 +21,8 @@ public final class Constants {
     public static final int leftFollowerDeviceID = 11;
     public static final int rightLeaderDeviceID = 12;
     public static final int rightFollowerDeviceID = 13;
+    public static final int leftPMID = 14; 
+    public static final int rightPMID = 15;
 
     public static final int ballTunnelChannel = 0;
     public static final int feederChannel = 1;

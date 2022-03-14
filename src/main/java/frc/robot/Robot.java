@@ -39,6 +39,9 @@ public class Robot extends TimedRobot {
   public static MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
   public static DifferentialDrive driveTrain = new DifferentialDrive(mcg_left, mcg_right);
 
+  public static CANSparkMax leftPM = new CANSparkMax(Constants.leftPMID, MotorType.kBrushless);
+  public static CANSparkMax rightPM = new CANSparkMax(Constants.rightPMID, MotorType.kBrushless);
+
   public final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
   public final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
   private static double position = 0;
@@ -154,6 +157,7 @@ public class Robot extends TimedRobot {
     feeder();
     tunnel();
     shooter();
+    climber();
     }
   
 
@@ -196,6 +200,17 @@ public class Robot extends TimedRobot {
   public static void shooter() {
     if (operatorStick.getRawButton(2)) {
         shooterMotor1.set(.9);
+        shooterMotor2.set(.9);
+    }
+  }
+
+  public static void climber() {
+    if (operatorStick.getRawButton(1)) {
+        leftPM.set(.7);
+        rightPM.set(.7);
+    } else {
+      leftPM.set(0);
+      rightPM.set(0);
     }
   }
 
