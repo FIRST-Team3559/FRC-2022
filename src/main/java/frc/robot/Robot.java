@@ -205,7 +205,7 @@ public class Robot extends TimedRobot {
 
   public static void tunnel() {
     if (operatorStick.getRawButton(3)) {
-      ballTunnelMotor.set(-.7);
+      ballTunnelMotor.set(-.25);
     } else {
       ballTunnelMotor.set(0);
     }
@@ -226,9 +226,9 @@ public class Robot extends TimedRobot {
   public static void shooter() {
     if (operatorStick.getTrigger()) {
       if (operatorStick.getRawAxis(1) > .75) {
-        shooterSpeed = .75 + operatorStick.getRawAxis(1);
+        shooterSpeed = operatorStick.getRawAxis(1);
         } else if (operatorStick.getRawAxis(1) < -.75) {
-          shooterSpeed = .75 + operatorStick.getRawAxis(1);
+          shooterSpeed = operatorStick.getRawAxis(1);
         } else {
           shooterSpeed = .9;
         }
