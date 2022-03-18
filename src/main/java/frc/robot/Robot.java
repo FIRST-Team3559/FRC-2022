@@ -5,18 +5,16 @@
 package frc.robot;
 
 import com.revrobotics.REVLibError;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.Joystick;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj.Timer;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 /**
@@ -27,6 +25,8 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
  */
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
+  private static final String kCustomAuto = "Shoot Only";
+  private static final String kNoAuto = "Do Nothing";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -39,21 +39,20 @@ public class Robot extends TimedRobot {
   public static MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
   public static DifferentialDrive driveTrain = new DifferentialDrive(mcg_left, mcg_right);
 
-  public static CANSparkMax leftPM = new CANSparkMax(Constants.leftPMID, MotorType.kBrushless);
-  public static CANSparkMax rightPM = new CANSparkMax(Constants.rightPMID, MotorType.kBrushless);
-
-  public final static RelativeEncoder m_leftEncoder = leftLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
-  public final static RelativeEncoder m_rightEncoder = rightLeader.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
-  private static double position = 0;
-
+  public static CANSparkMax winchMotor = new CANSparkMax(Constants.winchMotorID, MotorType.kBrushless);
   public static Spark feederMotor = new Spark (Constants.feederChannel);
-  public static Spark shooterMotor1 = new Spark(Constants.shooterMotor1Channel);
-  public static Spark shooterMotor2 = new Spark(Constants.shooterMotor2Channel);
+  public static Spark highShooterMotor = new Spark(Constants.highShooterMotorChannel);
+  public static Spark lowShooterMotor = new Spark(Constants.lowShooterMotorChannel);
   public static Spark ballTunnelMotor = new Spark(Constants.ballTunnelChannel);
 
   public static Joystick leftStick = new Joystick(0);
   public static Joystick rightStick = new Joystick(1);
   public static Joystick operatorStick = new Joystick(2);
+
+  private Timer timer;
+
+  private static double shooterSpeed;
+  private static double climberSpeed;
 
   /**
    * 
@@ -63,25 +62,32 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    m_chooser.addOption("Shoot Only", kCustomAuto);
+    m_chooser.addOption("Do Nothing", kNoAuto);
     SmartDashboard.putData("Autonomous", m_chooser);
 
-    {
-      if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-        SmartDashboard.putString("Ramp Rate", "Error");
-      }
-    
-      if(leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-        SmartDashboard.putString("Ramp Rate", "Error");
-      }
-    
-      if(rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-        SmartDashboard.putString("Ramp Rate", "Error");
-      }
-    
-      if(rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
-        SmartDashboard.putString("Ramp Rate", "Error");
-      }
+    leftLeader.setOpenLoopRampRate(.5);
+    leftFollower.setOpenLoopRampRate(.5);
+    rightLeader.setOpenLoopRampRate(.5);
+    rightFollower.setOpenLoopRampRate(.5);
+
+    if(leftLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
     }
+    
+    if(leftFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+    
+    if(rightLeader.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+    
+    if(rightFollower.setOpenLoopRampRate(.5) !=REVLibError.kOk) {
+      SmartDashboard.putString("Ramp Rate", "Error");
+    }
+
+    timer = new Timer();
 
     CameraServer.startAutomaticCapture();
   }
@@ -95,7 +101,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
   }
 
   /**
@@ -111,41 +116,62 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-    m_leftEncoder.setPosition(position);
-    m_rightEncoder.setPosition(position);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    shooterSpeed = .9;
     switch (m_autoSelected) {
+      case kCustomAuto:
+       if (timer.get() < 3) {
+         highShooterMotor.set(shooterSpeed);
+         lowShooterMotor.set(-shooterSpeed);
+         ballTunnelMotor.set(-.25); 
+       } else {
+        highShooterMotor.set(0);
+        lowShooterMotor.set(0);
+        ballTunnelMotor.set(0); 
+       }
+       break;
+      case kNoAuto:
+       break;
       case kDefaultAuto:
       default:
-      shooter();
-      driveTrain.tankDrive(-.7, -.7);
-      position = m_leftEncoder.getPosition();
-      if(position == 5) {
-        leftLeader.stopMotor();
-        rightLeader.stopMotor();
-        feeder();
-        shooter();
-        position = 0;
-        m_leftEncoder.setPosition(position);
-        driveTrain.tankDrive(.7, .7);
-        while (position != 5) {
-          position = m_leftEncoder.getPosition();
-        }
-        if(position == 5) {
-          leftLeader.stopMotor();
-          rightLeader.stopMotor();
-          shooter();
-        }
-      }
+       if (timer.get() < 3) {
+        highShooterMotor.set(shooterSpeed);
+        lowShooterMotor.set(-shooterSpeed);
+        ballTunnelMotor.set(-.25);
+       } else if (timer.get() < 6) {
+        ballTunnelMotor.set(0);
+        highShooterMotor.set(0);
+        lowShooterMotor.set(0);
+        feederMotor.set(0.5);
+        driveTrain.tankDrive(0.5, -0.5);
+       } else if (timer.get() < 9) {
+        driveTrain.tankDrive(-0.5, 0.5);
+        feederMotor.set(0);
+       } else if (timer.get() < 12) {
+        driveTrain.tankDrive(0, 0);
+        highShooterMotor.set(shooterSpeed);
+        lowShooterMotor.set(-shooterSpeed);
+        ballTunnelMotor.set(-.25);
+       } else if (timer.get() < 15) {
+         driveTrain.tankDrive(0.6, -0.6);
+         ballTunnelMotor.set(0);
+         highShooterMotor.set(0);
+         lowShooterMotor.set(0);
+       } else {
+        driveTrain.tankDrive(0, 0);
+        ballTunnelMotor.set(0);
+        highShooterMotor.set(0);
+        lowShooterMotor.set(0);
+       }
         break;
+      }
     }
-  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -153,7 +179,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    driveTrain.tankDrive(leftStick.getRawAxis(1), rightStick.getRawAxis(5));
+    driveTrain.tankDrive(leftStick.getRawAxis(1), rightStick.getRawAxis(1));
     feeder();
     tunnel();
     shooter();
@@ -198,20 +224,34 @@ public class Robot extends TimedRobot {
 }
 
   public static void shooter() {
-    if (operatorStick.getRawButton(2)) {
-        shooterMotor1.set(.9);
-        shooterMotor2.set(.9);
+    if (operatorStick.getTrigger()) {
+      if (operatorStick.getRawAxis(1) > .75) {
+        shooterSpeed = .75 + operatorStick.getRawAxis(1);
+        } else if (operatorStick.getRawAxis(1) < -.75) {
+          shooterSpeed = .75 + operatorStick.getRawAxis(1);
+        } else {
+          shooterSpeed = .9;
+        }
+
+        highShooterMotor.set(shooterSpeed);
+        lowShooterMotor.set(-shooterSpeed);
+    } else {
+      highShooterMotor.set(0);
+      lowShooterMotor.set(0);
     }
   }
 
   public static void climber() {
-    if (operatorStick.getRawButton(1)) {
-        leftPM.set(.7);
-        rightPM.set(.7);
-    } else {
-      leftPM.set(0);
-      rightPM.set(0);
+    if (!operatorStick.getTrigger()) {
+      if (operatorStick.getRawAxis(1) > .5) {
+        climberSpeed = operatorStick.getRawAxis(1);
+          winchMotor.set(-climberSpeed);
+      } else if (operatorStick.getRawAxis(1) < -.5) {
+        climberSpeed = operatorStick.getRawAxis(1);
+        winchMotor.set(climberSpeed);
+      } else {
+        winchMotor.set(0);
+      }
     }
   }
-
 }
