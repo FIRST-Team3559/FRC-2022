@@ -244,7 +244,6 @@ public class Robot extends TimedRobot {
         } else {
           shooterSpeed = .9;
         }
-
         highShooterMotor.set(shooterSpeed);
         lowShooterMotor.set(-shooterSpeed);
     } else {
