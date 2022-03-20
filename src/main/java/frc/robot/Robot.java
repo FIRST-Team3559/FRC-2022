@@ -193,6 +193,7 @@ public class Robot extends TimedRobot {
     shooter();
     climber();
     if (operatorStick.getRawButton(8)) {
+      winchEncoder.setPosition(0);
       totalCounts = 0;
     }
   }
