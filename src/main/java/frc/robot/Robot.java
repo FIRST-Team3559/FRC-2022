@@ -16,7 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
-import com.revrobotics.SparkMaxRelativeEncoder;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -48,13 +48,12 @@ public class Robot extends TimedRobot {
 
   private static double shooterSpeed;
   private static double climberSpeed;
-  private static double totalCounts;
+
+  private static DigitalInput upperLimitSwitch = new DigitalInput(Constants.upperLimitSwitchChannel);
+  private static DigitalInput lowerLimitSwitch = new DigitalInput(Constants.lowerLimitSwitchChannel);
 
   private static MotorControllerGroup mcg_right = new MotorControllerGroup(rightLeader, rightFollower);
   private static MotorControllerGroup mcg_left = new MotorControllerGroup(leftLeader, leftFollower);
-
-  private static SparkMaxRelativeEncoder winchEncoder = 
-  (SparkMaxRelativeEncoder) winchMotor.getEncoder(Constants.kHallSensor, Constants.countsPerRev);
 
   private static DifferentialDrive driveTrain = new DifferentialDrive(mcg_left, mcg_right);
 
@@ -177,9 +176,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-    totalCounts = 0;
-  }
+  public void teleopInit() {}
 
   @Override
   public void teleopPeriodic() {
@@ -242,18 +239,12 @@ public class Robot extends TimedRobot {
 
   public static void climber() {
     if (!operatorStick.getTrigger()) {
-      if (operatorStick.getRawButton(8)) {
-        winchEncoder.setPosition(0);
-        totalCounts = 0;
-      }
-      if (operatorStick.getRawAxis(1) > 0.5 && totalCounts <= 126) {
+      if (operatorStick.getRawAxis(1) > 0.5 && !upperLimitSwitch.get()) {
         climberSpeed = operatorStick.getRawAxis(1);
         winchMotor.set(-climberSpeed);
-        totalCounts = winchEncoder.getPosition() * Constants.countsPerRev;
-      } else if (operatorStick.getRawAxis(1) < -0.5 && totalCounts <= 126) {
+      } else if (operatorStick.getRawAxis(1) < -0.5 && !lowerLimitSwitch.get()) {
         climberSpeed = operatorStick.getRawAxis(1);
         winchMotor.set(climberSpeed);
-        totalCounts = winchEncoder.getPosition() * Constants.countsPerRev;
       } else {
         winchMotor.set(0);
       }

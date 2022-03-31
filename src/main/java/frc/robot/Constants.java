@@ -27,6 +27,8 @@ public final class Constants {
     public static final int feederChannel = 1;
     public static final int highShooterMotorChannel = 2;
     public static final int lowShooterMotorChannel = 3;
+    public static final int upperLimitSwitchChannel = 4;
+    public static final int lowerLimitSwitchChannel = 5;
 
     public static final Type kHallSensor = null;
     public static final int countsPerRev = 42;
